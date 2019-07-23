@@ -40,7 +40,7 @@ map<long, vector<long>> sigs_vehs; //intersection vehicles -- intersection, list
 map<long, vector<double>> sigs_vehs_times; //intersection vehicle final times -- vehicle id, vehicle final time
 
 double des_headway = 1.2;
-double current_time = 0;
+double current_time = 4;
 
 double max_spd_highway = 23; // 50mph for highway
 double max_spd_urban = 16; // 40mph for urban intersection
@@ -51,7 +51,7 @@ double pre_time = 0;
 
 double safe_dist = 1.5;
 double safe_headway = 1.2;
-
+double  desired_acceleration = 0.0;
 vector<double> cal_final_time_ecoand(ecoand& e, long sig);
 
 int main()
@@ -59,7 +59,7 @@ int main()
 	ecoand c;
 	int leadId = -1; //there is no car in the front
 	double dist_traveled = 10; // distance travelled since the beginning of ECOAND mode
-	double current_time = 10;
+	double current_time = 4;
 	double pre_time = 0;
 	double time_interval = 0;
 	long current_veh_id = 1;
@@ -72,13 +72,13 @@ int main()
 	long current_veh_lat = 42.348535;
 	long current_veh_lon = -71.116543;
 	double current_veh_head = 0;
-	double dist_to_sig = 80;
+	double dist_to_sig = 95;
 
 	long sig_lat = 42.348732;
 	long sig_lon = -71.118099;
 
 	double lead_spd_diff = 0;
-	double lead_dist = 4;
+	double lead_dist = 200;
 	double lead_acc = 0;
 
 	double current_position = 0;
@@ -92,10 +92,11 @@ int main()
 	double max_acc = 2.0; // (desired acceleration for normal vehicles)
 
 
-	string sig_state = "RED";
-	double sig_tm_nxt_green = 10;
-	double sig_tm_nxt_red = 30;
-	double sig_cyc_time = 20;
+	string sig_state = "GREEN";
+	double sig_tm_nxt_green = 26;
+	double sig_tm_nxt_red = 6;
+	double sig_cyc_time = 10;
+	long sig_id = 1;
 
 
 	double des_headway = 1.2;
@@ -115,7 +116,6 @@ int main()
 
 	if (c.dist_to_sig < ctrl_len)
 	{
-		long sig_id = 1;
 		c.cal_ini_time(current_time, c.dist_to_sig, current_spd, sig_id); //calculate initial time, and then add to intersection record
 		c.in_ecoand = 1;
 
@@ -183,6 +183,71 @@ int main()
 	//std::cout << "Hello World!\n";
 	std::cout << c.in_ctrl << "\n";
 	std::cout << c.in_ecoand << "\n";
+	std::cout << "Hi" << "\n";
+//////////////////////////////////////////////////
+	double acc = 0;
+	if (c.in_ctrl == 1)
+	{
+		double t1 = 0, t2 = 0, t3 = 0, a1 = 0, a2 = 0, b1 = 0, b2 = 0, a3 = 0, b3 = 0;
+
+		long count = c.ctrls.size();
+		vector<double> ego_ctrls = c.ctrls;
+		double in_ctrl_time = c.sig_in_ctrl_times[sig_id];
+
+		if (count == 3)
+		{//first element is the final time
+			t1 = ego_ctrls[0];
+			a1 = ego_ctrls[1];
+			b1 = ego_ctrls[2];
+			if (current_time <= t1)
+				acc = a1 * (current_time - in_ctrl_time) + b1;
+
+		}
+		else if (count == 6)
+		{
+			t1 = ego_ctrls[0];
+			t2 = ego_ctrls[1];
+			a1 = ego_ctrls[2];
+			b1 = ego_ctrls[3];
+			a2 = ego_ctrls[4];
+			b2 = ego_ctrls[5];
+
+			if (current_time <= t1)
+				acc = a1 * (current_time - in_ctrl_time) + b1;
+			else if (current_time <= t2)
+				acc = a2 * (current_time - t1) + b2;
+		}
+		else if (count == 9)
+		{
+			t1 = ego_ctrls[0];
+			t2 = ego_ctrls[1];
+			t3 = ego_ctrls[2];
+			a1 = ego_ctrls[3];
+			b1 = ego_ctrls[4];
+			a2 = ego_ctrls[5];
+			b2 = ego_ctrls[6];
+			a3 = ego_ctrls[7];
+			b3 = ego_ctrls[8];
+
+			if (current_time <= t1)
+				acc = a1 * (current_time - in_ctrl_time) + b1;
+			else if (current_time <= t2)
+				acc = a2 * (current_time - t1) + b2;
+			else if (current_time <= t3)
+				acc = a3 * (current_time - t2) + b3;
+		}
+		//safety check
+		if (leadId == -1 || (leadId != -1 && lead_dist - lead_veh_length >= current_spd * safe_headway + safe_dist))
+			desired_acceleration = acc;
+		else
+		{
+			c.in_ctrl = 0;
+		}
+	}
+	std::cout << desired_acceleration << "\n";
+	std::cout << c.ctrl_modes[0] << "\n";
+
+//////////////////////////////////////////////
 
 
 }
