@@ -1021,7 +1021,7 @@ void ecoand::get_sig_pos(long cur_lat, long cur_lon, long nxt_sig_lat, long nxt_
 
 
 
-vector<double> ecoand::cal_final_time_ecoand( map<long, vector<long>> sigs_vehs,
+vector<double> ecoand::cal_final_time_ecoand(map<long, vector<long>> sigs_vehs,
 	map<long, vector<double>> sigs_vehs_times, double des_headway, long sig_ID)
 {
 	double vf = -1, acc_dec = 0;
@@ -1041,8 +1041,8 @@ vector<double> ecoand::cal_final_time_ecoand( map<long, vector<long>> sigs_vehs,
 			double left_green_time = sig_tm_next_red[sig_ID]; //time until red
 			double final_time_green = left_green_time + cur_time; //maximum final time
 
-			double max_time = (sig_lengths[sig_ID] - cur_pos) / vmin + cur_time;
-			double min_time = (sig_lengths[sig_ID] - cur_pos) / vmax + cur_time;
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time;
 
 			if (sig_ini_times[sig_ID] <= final_time_green) //if initial time is smaller than green end time
 			{
@@ -1066,8 +1066,8 @@ vector<double> ecoand::cal_final_time_ecoand( map<long, vector<long>> sigs_vehs,
 			double final_time_green_start = left_red_time + cur_time; // earliest available green, minimum final time
 			double final_time_green_end = sig_tm_next_red[sig_ID] + cur_time; //time until next red, maximum final time
 
-			double max_time = (sig_lengths[sig_ID] - cur_pos) / vmin + cur_time; //deceleration time
-			double min_time = (sig_lengths[sig_ID] - cur_pos) / vmax + cur_time; //acceleration time
+			double max_time = (dist_to_sig) / vmin + cur_time; //deceleration time
+			double min_time = (dist_to_sig) / vmax + cur_time; //acceleration time
 
 			if (sig_ini_times[sig_ID] >= final_time_green_start && sig_ini_times[sig_ID] <= final_time_green_end) //if initial time is smaller than green end time
 			{
@@ -1112,8 +1112,8 @@ vector<double> ecoand::cal_final_time_ecoand( map<long, vector<long>> sigs_vehs,
 		{
 			double left_green_time = sig_tm_next_red[sig_ID]; //time until red
 			double final_time_green = left_green_time + cur_time;
-			double max_time = (sig_lengths[sig_ID] - cur_pos) / vmin + cur_time;
-			double min_time = (sig_lengths[sig_ID] - cur_pos) / vmax + cur_time; //useful
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time; //useful
 
 			if (last_veh_time + des_headway <= final_time_green)
 			{
@@ -1225,8 +1225,8 @@ vector<double> ecoand::cal_final_time_ecoand( map<long, vector<long>> sigs_vehs,
 			double left_red_time = sig_tm_next_green[sig_ID]; //time until green
 			double final_time_enter = left_red_time + cur_time; // earliest available green
 			double final_time_exit = sig_tm_next_red[sig_ID] + cur_time; //time until next red
-			double max_time = (sig_lengths[sig_ID] - cur_pos) / vmin + cur_time;
-			double min_time = (sig_lengths[sig_ID] - cur_pos) / vmax + cur_time; //useful
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time; //useful
 
 			if (last_veh_time + des_headway > final_time_enter && last_veh_time + des_headway <= final_time_exit) // if potential final time for this vehicle is green
 			{

@@ -119,7 +119,7 @@ int main()
 			}
 			else if (final_results[1] == -1) //deceleration
 			{								//0: objective value; 1: t1; 2: t2; 3: acc; 4: case_number
-				ctrl_results = c.fittocd(current_spd, c.sig_lengths[sig_id] - dist_traveled, final_results[0] - current_time);
+				ctrl_results = c.fittocd(current_spd, c.dist_to_sig, final_results[0] - current_time);
 				acc_com = ctrl_results[3];
 				if (acc_com > min_acc && acc_com <= max_acc)
 				{
