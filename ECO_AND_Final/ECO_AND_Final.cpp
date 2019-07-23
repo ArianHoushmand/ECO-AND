@@ -120,7 +120,8 @@ int main()
 		c.in_ecoand = 1;
 
 		c.get_sig_states(sig_state, sig_tm_nxt_green, sig_tm_nxt_red, sig_cyc_time, sig_id);
-		vector<double> final_results = cal_final_time_ecoand(c, sig_id);
+		//vector<double> final_results = cal_final_time_ecoand(c, sig_id);
+		vector<double> final_results = c.cal_final_time_ecoand(sigs_vehs, sigs_vehs_times, des_headway, sig_id);
 		c.set_ctrl_modes(final_results);
 		c.sig_times[sig_id] = final_results[0];
 		c.sig_in_ctrl_times[sig_id] = current_time;

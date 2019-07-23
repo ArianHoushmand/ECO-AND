@@ -83,6 +83,10 @@ public:
 
 	void set_ctrl_modes(vector<double> modes);
 
+	vector<double> cal_final_time_ecoand(map<long, vector<long>> sigs_vehs,
+		map<long, vector<double>> sigs_vehs_times, double des_headway, long sig_ID);
+
+
 	//long double solve_cubic_ts(double tc, double tm);
 	//long double solve_cubic_tm(double tc, double ts, double l, double sigma, double delta);
 };
