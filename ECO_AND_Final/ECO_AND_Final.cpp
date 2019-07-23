@@ -40,14 +40,13 @@ map<long, vector<long>> sigs_vehs; //intersection vehicles -- intersection, list
 map<long, vector<double>> sigs_vehs_times; //intersection vehicle final times -- vehicle id, vehicle final time
 
 double des_headway = 1.2;
-double current_time = 4;
+double current_time = 20;
 
 double max_spd_highway = 23; // 50mph for highway
 double max_spd_urban = 16; // 40mph for urban intersection
 double min_spd = 2; // 5mph (queue start speed in vissim)
 double min_acc = -2.0; // (desired deceleration for normal vehicles)
 double max_acc = 2.0; // (desired acceleration for normal vehicles)
-double pre_time = 0;
 
 double safe_dist = 1.5;
 double safe_headway = 1.2;
@@ -59,9 +58,7 @@ int main()
 	ecoand c;
 	int leadId = -1; //there is no car in the front
 	double dist_traveled = 10; // distance travelled since the beginning of ECOAND mode
-	double current_time = 4;
-	double pre_time = 0;
-	double time_interval = 0;
+	double current_time = 20;
 	long current_veh_id = 1;
 	double current_spd = 12;
 	double current_acc = 0;
@@ -72,7 +69,7 @@ int main()
 	long current_veh_lat = 42.348535;
 	long current_veh_lon = -71.116543;
 	double current_veh_head = 0;
-	double dist_to_sig = 95;
+	double dist_to_sig = 145;
 
 	long sig_lat = 42.348732;
 	long sig_lon = -71.118099;
@@ -93,8 +90,8 @@ int main()
 
 
 	string sig_state = "GREEN";
-	double sig_tm_nxt_green = 26;
-	double sig_tm_nxt_red = 6;
+	double sig_tm_nxt_green = 12;
+	double sig_tm_nxt_red = 0.5;
 	double sig_cyc_time = 10;
 	long sig_id = 1;
 
@@ -146,7 +143,7 @@ int main()
 			}
 			else if (final_results[1] == -1) //deceleration
 			{								//0: objective value; 1: t1; 2: t2; 3: acc; 4: case_number
-				ctrl_results = c.fittocd(current_spd, c.sig_lengths[sig_id] - dist_traveled, final_results[0] - current_time);
+				ctrl_results = c.fittocd(current_spd, c.dist_to_sig, final_results[0] - current_time);
 				acc_com = ctrl_results[3];
 				if (acc_com > min_acc && acc_com <= max_acc)
 				{
@@ -252,6 +249,7 @@ int main()
 
 }
 
+
 //////////////////////==Global functions==////////////////////////
 vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 {
@@ -272,8 +270,8 @@ vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 			double left_green_time = e.sig_tm_next_red[sig]; //time until red
 			double final_time_green = left_green_time + current_time; //maximum final time
 
-			double max_time = (e.sig_lengths[sig] - e.cur_pos) / min_spd + current_time;
-			double min_time = (e.sig_lengths[sig] - e.cur_pos) / max_spd_urban + current_time;
+			double max_time = (e.dist_to_sig) / min_spd + current_time;
+			double min_time = (e.dist_to_sig) / max_spd_urban + current_time;
 
 			if (e.sig_ini_times[sig] <= final_time_green) //if initial time is smaller than green end time
 			{
@@ -297,8 +295,8 @@ vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 			double final_time_green_start = left_red_time + current_time; // earliest available green, minimum final time
 			double final_time_green_end = e.sig_tm_next_red[sig] + current_time; //time until next red, maximum final time
 
-			double max_time = (e.sig_lengths[sig] - e.cur_pos) / min_spd + current_time; //deceleration time
-			double min_time = (e.sig_lengths[sig] - e.cur_pos) / max_spd_urban + current_time; //acceleration time
+			double max_time = (e.dist_to_sig) / min_spd + current_time; //deceleration time
+			double min_time = (e.dist_to_sig) / max_spd_urban + current_time; //acceleration time
 
 			if (e.sig_ini_times[sig] >= final_time_green_start && e.sig_ini_times[sig] <= final_time_green_end) //if initial time is smaller than green end time
 			{
@@ -343,8 +341,8 @@ vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 		{
 			double left_green_time = e.sig_tm_next_red[sig]; //time until red
 			double final_time_green = left_green_time + current_time;
-			double max_time = (e.sig_lengths[sig] - e.cur_pos) / min_spd + current_time;
-			double min_time = (e.sig_lengths[sig] - e.cur_pos) / max_spd_urban + current_time; //useful
+			double max_time = (e.dist_to_sig) / min_spd + current_time;
+			double min_time = (e.dist_to_sig) / max_spd_urban + current_time; //useful
 
 			if (last_veh_time + des_headway <= final_time_green)
 			{
@@ -456,8 +454,8 @@ vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 			double left_red_time = e.sig_tm_next_green[sig]; //time until green
 			double final_time_enter = left_red_time + current_time; // earliest available green
 			double final_time_exit = e.sig_tm_next_red[sig] + current_time; //time until next red
-			double max_time = (e.sig_lengths[sig] - e.cur_pos) / min_spd + current_time;
-			double min_time = (e.sig_lengths[sig] - e.cur_pos) / max_spd_urban + current_time; //useful
+			double max_time = (e.dist_to_sig) / min_spd + current_time;
+			double min_time = (e.dist_to_sig) / max_spd_urban + current_time; //useful
 
 			if (last_veh_time + des_headway > final_time_enter && last_veh_time + des_headway <= final_time_exit) // if potential final time for this vehicle is green
 			{
@@ -509,5 +507,7 @@ vector<double> cal_final_time_ecoand(ecoand& e, long sig)
 
 	return results;
 }
+
+
 
 
