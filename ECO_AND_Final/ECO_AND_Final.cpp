@@ -29,20 +29,14 @@ int main()
 	long current_veh_id = 1;
 	double current_spd = 12;
 	double current_acc = 0;
-	long driving_state = 0;
 	double lead_veh_length = 2;
 	double ctrl_len = 150; // min distance to traffic light for activating ecoAND
-	double current_veh_head = 0;
-	double dist_to_sig = 140;
+
 
 
 	double lead_spd_diff = 0;
 	double lead_dist = 200;
 	double lead_acc = 0;
-
-	double current_position = 0;
-	double max_acceleration = 0;
-	long switch_to_car_following = 0;
 	double  desired_acceleration = 0.0;
 
 	double max_spd_highway = 23; // 50mph for highway
@@ -57,6 +51,7 @@ int main()
 	double sig_tm_nxt_red = 0.5;
 	double sig_cyc_time = 10;
 	long sig_id = 1;
+	double dist_to_sig = 140;
 
 	double des_headway = 1.2;
 	double safe_dist = 1.5;
@@ -82,7 +77,6 @@ int main()
 		c.in_ecoand = 1;
 
 		c.get_sig_states(sig_state, sig_tm_nxt_green, sig_tm_nxt_red, sig_cyc_time, sig_id);
-		//vector<double> final_results = cal_final_time_ecoand(c, sig_id);
 		vector<double> final_results = c.cal_final_time_ecoand(sigs_vehs, sigs_vehs_times, des_headway, sig_id);
 		c.set_ctrl_modes(final_results);
 		c.sig_times[sig_id] = final_results[0];
