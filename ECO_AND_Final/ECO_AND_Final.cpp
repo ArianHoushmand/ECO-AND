@@ -25,23 +25,16 @@ int main()
 	ecoand c;
 	int leadId = -1; //there is no car in the front
 	double dist_traveled = 10; // distance travelled since the beginning of ECOAND mode
-	double current_time = 9.5;
-	double pre_time = 0;
-	double time_interval = 0;
+	double current_time = 19.5;
 	long current_veh_id = 1;
 	double current_spd = 12;
 	double current_acc = 0;
 	long driving_state = 0;
-	double self_veh_length = 2;
 	double lead_veh_length = 2;
 	double ctrl_len = 150; // min distance to traffic light for activating ecoAND
-	long current_veh_lat = 42.348535;
-	long current_veh_lon = -71.116543;
 	double current_veh_head = 0;
 	double dist_to_sig = 140;
 
-	long sig_lat = 42.348732;
-	long sig_lon = -71.118099;
 
 	double lead_spd_diff = 0;
 	double lead_dist = 200;
@@ -65,7 +58,6 @@ int main()
 	double sig_cyc_time = 10;
 	long sig_id = 1;
 
-
 	double des_headway = 1.2;
 	double safe_dist = 1.5;
 	double safe_headway = 1.2;
@@ -76,13 +68,11 @@ int main()
 
 
 	if (leadId == -1)
-		c.init(current_veh_id, current_veh_lat, current_veh_lon, current_time, dist_traveled, current_spd, current_acc);
+		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc);
 	else
-		c.init(current_veh_id, current_veh_lat, current_veh_lon, current_time, dist_traveled, current_spd, current_acc, leadId, lead_acc, lead_spd_diff, lead_dist);
+		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc, leadId, lead_acc, lead_spd_diff, lead_dist);
 	c.mode = 3;
-
 	c.set_limits(max_spd_urban, min_spd, max_acc, min_acc);
-	//get_sig_pos(current_veh_lat, current_veh_lon, sig_lat, sig_lon);
 
 	c.dist_to_sig = dist_to_sig;
 
@@ -157,7 +147,7 @@ int main()
 	std::cout << c.in_ctrl << "\n";
 	std::cout << c.in_ecoand << "\n";
 	std::cout << "Hi" << "\n";
-//////////////////////////////////////////////////
+	//////////////////////////////////////////////////
 	double acc = 0;
 	if (c.in_ctrl == 1)
 	{
@@ -220,7 +210,7 @@ int main()
 	std::cout << desired_acceleration << "\n";
 	std::cout << c.ctrl_modes[0] << "\n";
 
-//////////////////////////////////////////////
+	//////////////////////////////////////////////
 
 
 }

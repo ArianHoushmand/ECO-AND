@@ -22,11 +22,11 @@ ecoand::~ecoand()
 
 #endif  /* NOMINMAX */
 
-void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd, double acc)
+void ecoand::init(long id, double tm, double pos, double spd, double acc)
 {
 	veh_id = id;
-	current_lat = lat;
-	current_lon = lon;
+	//current_lat = lat;
+	//current_lon = lon;
 	cur_time = tm;
 	cur_pos = pos;
 	cur_spd = spd;
@@ -44,11 +44,11 @@ void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd
 	mode = 0;
 }
 
-void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist)
+void ecoand::init(long id, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist)
 {
 	veh_id = id;
-	current_lat = lat;
-	current_lon = lon;
+	//current_lat = lat;
+	//current_lon = lon;
 	cur_time = tm;
 	cur_pos = pos;
 	cur_spd = spd;

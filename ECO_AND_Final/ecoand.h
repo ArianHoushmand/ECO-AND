@@ -59,8 +59,8 @@ public:
 	map<long, double> sig_in_ctrl_times; //to store entry times at intersections
 
 public:
-	void init(long id, long lat, long lon, double tm, double pos, double spd, double acc);
-	void init(long id, long lat, long lon, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist);
+	void init(long id, double tm, double pos, double spd, double acc);
+	void init(long id, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist);
 	void update_status(long lk, long lane, double tm, double spd, double acc, double pos);
 	void update_status(long lk, long lane, double tm, double spd, double acc, double pos, long f_id, double f_acc, double f_spd_diff, double f_dist);
 
@@ -68,14 +68,10 @@ public:
 	vector<double> fittocd(double spd, double dist_to_sig, double final_time);
 	vector<double> fttoc(double spd, double rho_t, double rho_u, double dist_to_sig);
 	vector<double> rorg(double cur_time, double cur_pos, double spd, long next_sig);
-	//void cal_acc(double cur_time, double time_step, double cur_pos, double spd, long next_sig);
 	void set_limits(double max_spd, double min_spd, double max_acc, double min_acc);
-	//void cal_ini_time(double cur_time, double cur_pos, double spd, long next_sig);
 	void cal_ini_time(double cur_time, double dist_to_sig, double spd, long next_sig);
 	void get_sig_links(string sig_link_str, string sig_group_str, map<long, double> link_signals, string sig_cyc_time_str);
-	//void get_sig_states(string sig_state_str, string sig_time_green_str, string sig_time_red_str);
 	void get_sig_states(string sig_state_str, double tm_nxt_green, double tm_nxt_red, double cyc_tm, long sig_ID);
-	//void get_sig_pos(string link_str, map<long, double> link_lengths, map<long, double> sig_ctrl_lks);
 	void get_sig_pos(long cur_lat, long cur_lon, long sig_lat, long sig_lon);
 
 	void set_ctrls(double final_time, double time_step, double acc, double spd);
