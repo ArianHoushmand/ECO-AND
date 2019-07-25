@@ -20,29 +20,29 @@
 #include <math.h>
 
 
+vector<double> cal_ecoand(long current_veh_id, double current_spd, double current_acc, double dist_traveled,
+	long leadid, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
+	double sig_tm_nxt_green, double sig_tm_nxt_red, double sig_cyc_time, double dist_to_sig, double current_time);
+
 int main()
 {
 	ecoand c;
-	int leadId = -1; //there is no car in the front
 	double dist_traveled = 10; // distance travelled since the beginning of ECOAND mode
 	double current_time = 19.5;
 	long current_veh_id = 1;
 	double current_spd = 12;
 	double current_acc = 0;
-	double lead_veh_length = 2;
-	double ctrl_len = 150; // min distance to traffic light for activating ecoAND
 
 
 
+
+	long leadId = -1; //there is no car in the front
 	double lead_spd_diff = 0;
 	double lead_dist = 200;
 	double lead_acc = 0;
-	double  desired_acceleration = 0.0;
 
-	double max_spd = 16; // 36mph for urban intersection
-	double min_spd = 2; // 5mph (queue start speed in vissim)
-	double min_acc = -2.0; // (desired deceleration for normal vehicles)
-	double max_acc = 2.0; // (desired acceleration for normal vehicles)
+
+
 
 
 	string sig_state = "GREEN";
@@ -52,9 +52,45 @@ int main()
 	long sig_id = 1;
 	double dist_to_sig = 140;
 
+	vector<double> output;
+
+	output = cal_ecoand(current_veh_id, current_spd, current_acc, dist_traveled, leadId,
+		lead_dist, lead_spd_diff, lead_acc, sig_id, sig_state, sig_tm_nxt_green, sig_tm_nxt_red,
+		sig_cyc_time, dist_to_sig, current_time);
+
+	std:cout << "Acceleration: " << output[0] << "\n";
+	std::cout << "Tf: " << output[1] << "\n";
+	std::cout << "Control Mode " << output[2] << "\n";
+
+
+
+	//////////////////////////////////////////////
+
+
+}
+
+
+vector<double> cal_ecoand(long current_veh_id, double current_spd, double current_acc, double dist_traveled,
+	long leadId, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
+	double sig_tm_nxt_green, double sig_tm_nxt_red, double sig_cyc_time, double dist_to_sig, double current_time)
+{
+	ecoand c;
+	vector<double> results;
+	double tf = -1;
+
+	double max_spd = 16; // 36mph for urban intersection
+	double min_spd = 2; // 5mph (queue start speed in vissim)
+	double min_acc = -2.0; // (desired deceleration for normal vehicles)
+	double max_acc = 2.0; // (desired acceleration for normal vehicles)
+
+	double ctrl_len = 150; // min distance to traffic light for activating ecoAND
+
 	double des_headway = 1.2;
 	double safe_dist = 1.5;
 	double safe_headway = 1.2;
+	double desired_acceleration = 0.0;
+	double lead_veh_length = 2;
+
 
 	long mode = 0;
 
@@ -83,8 +119,8 @@ int main()
 		c.sig_times[sig_id] = final_results[0];
 		c.sig_in_ctrl_times[sig_id] = current_time;
 
-		std::cout << final_results[0] << "\n";
-		std::cout << final_results[1] << "\n";
+		//std::cout << final_results[0] << "\n";
+		//std::cout << final_results[1] << "\n";
 
 		double acc_com;
 		vector<double> ctrl_results;
@@ -140,6 +176,7 @@ int main()
 
 		sigs_vehs[sig_id].push_back(current_veh_id);
 		sigs_vehs_times[sig_id].push_back(final_results[0]);
+		tf = final_results[0];
 	}
 	else
 	{
@@ -148,10 +185,8 @@ int main()
 		mode = 0;
 	}
 
-	//std::cout << "Hello World!\n";
-	std::cout << c.in_ctrl << "\n";
-	std::cout << c.in_ecoand << "\n";
-	std::cout << "Hi" << "\n";
+	//std::cout << c.in_ctrl << "\n";
+	//std::cout << c.in_ecoand << "\n";
 	//////////////////////////////////////////////////
 	double acc = 0;
 	if (c.in_ctrl == 1)
@@ -213,10 +248,16 @@ int main()
 			c.mode = 0;
 		}
 	}
-	std::cout << desired_acceleration << "\n";
-	std::cout << c.ctrl_modes[0] << "\n";
+	//std::cout << "desired acceleration: " << desired_acceleration << "\n";
+	//std::cout << "acc:" << acc << "\n";
+	//std::cout << "control mode: " << c.ctrl_modes[0] << "\n";
+	//std::cout << "Mode: " << c.mode << "\n";
 
-	//////////////////////////////////////////////
+	results.push_back(acc);
+	results.push_back(tf);
+	results.push_back(c.mode);
+
+	return results;
 
 
 }
