@@ -39,8 +39,7 @@ int main()
 	double lead_acc = 0;
 	double  desired_acceleration = 0.0;
 
-	double max_spd_highway = 23; // 50mph for highway
-	double max_spd_urban = 16; // 40mph for urban intersection
+	double max_spd = 16; // 36mph for urban intersection
 	double min_spd = 2; // 5mph (queue start speed in vissim)
 	double min_acc = -2.0; // (desired deceleration for normal vehicles)
 	double max_acc = 2.0; // (desired acceleration for normal vehicles)
@@ -57,6 +56,8 @@ int main()
 	double safe_dist = 1.5;
 	double safe_headway = 1.2;
 
+	long mode = 0;
+
 	map<long, vector<long>> sigs_vehs; //intersection vehicles -- intersection, list of vehicle ids
 	map<long, vector<double>> sigs_vehs_times; //intersection vehicle final times -- vehicle id, vehicle final time
 
@@ -67,7 +68,7 @@ int main()
 	else
 		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc, leadId, lead_acc, lead_spd_diff, lead_dist);
 	c.mode = 3;
-	c.set_limits(max_spd_urban, min_spd, max_acc, min_acc);
+	c.set_limits(max_spd, min_spd, max_acc, min_acc);
 
 	c.dist_to_sig = dist_to_sig;
 
@@ -91,10 +92,14 @@ int main()
 		if (final_results[0] == -1)
 		{
 			c.in_ctrl = 0;
+			c.mode = 0;
+			mode = 0;
 		}
 		else
 		{
 			c.in_ctrl = 1;
+			c.mode = 3;
+			mode = 3;
 
 			if (final_results[1] == 0)
 			{
@@ -112,6 +117,8 @@ int main()
 				else
 				{
 					c.in_ctrl = 0;
+					c.mode = 0;
+					mode = 0;
 				}
 			}
 			else if (final_results[1] == 1)
@@ -125,6 +132,8 @@ int main()
 				else
 				{
 					c.in_ctrl = 0;
+					c.mode = 0;
+					mode = 0;
 				}
 			}
 		}
@@ -135,6 +144,8 @@ int main()
 	else
 	{
 		c.in_ecoand = 0;
+		c.mode = 0;
+		mode = 0;
 	}
 
 	//std::cout << "Hello World!\n";
@@ -199,6 +210,7 @@ int main()
 		else
 		{
 			c.in_ctrl = 0;
+			c.mode = 0;
 		}
 	}
 	std::cout << desired_acceleration << "\n";
