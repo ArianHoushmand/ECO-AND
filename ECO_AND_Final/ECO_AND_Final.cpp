@@ -1,4 +1,4 @@
-// ECO_AND_Arian_Test.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// ECO_AND_Finall_Test.cpp
 //
 
 #include <iostream>
@@ -26,32 +26,30 @@ vector<double> cal_ecoand(long current_veh_id, double current_spd, double curren
 
 int main()
 {
-	ecoand c;
-	double dist_traveled = 10; // distance travelled since the beginning of ECOAND mode
+	//Inputes:
+	// Ego  vehicle info
+	double dist_traveled = 10; // distance travelled since the beginning
 	double current_time = 19.5;
 	long current_veh_id = 1;
 	double current_spd = 12;
 	double current_acc = 0;
+	// Lead vehicle information
+	long leadId = -1; //-1 if there is no car in the front, otherwise pass the vehicle ID
+	double lead_spd_diff = 0; // spd_lead - spd_ego
+	double lead_dist = 200; // distance of the lead vehicle from the ego car
+	double lead_acc = 0; // acceleration of the lead vehicle
+	// Traggic light info
+	string sig_state = "GREEN"; // options: "GREEN", "RED", "YELLOW"
+	double sig_tm_nxt_green = 10.5; // Remaining time to the next green light
+	double sig_tm_nxt_red = 0.5;// Remaining time to the next red light
+	double sig_cyc_time = 10; // total cycle time of the light: total red time + total greem time
+	long sig_id = 1; // Signal ID (we can leave it as it since we only have one traffic light)
+	double dist_to_sig = 140; // distance of the ego car to the traffic light
 
-
-
-
-	long leadId = -1; //there is no car in the front
-	double lead_spd_diff = 0;
-	double lead_dist = 200;
-	double lead_acc = 0;
-
-
-
-
-
-	string sig_state = "GREEN";
-	double sig_tm_nxt_green = 10.5;
-	double sig_tm_nxt_red = 0.5;
-	double sig_cyc_time = 10;
-	long sig_id = 1;
-	double dist_to_sig = 140;
-
+	// Output vector:
+	// output[0]: desired acceleration
+	// output[1]: terminal time (arriavle time) at the intersection
+	// output[2]: mode: 3 if in eco_and, 0 otherwise
 	vector<double> output;
 
 	output = cal_ecoand(current_veh_id, current_spd, current_acc, dist_traveled, leadId,
