@@ -21,7 +21,7 @@
 
 
 vector<double> cal_ecoand(long current_veh_id, double current_spd, double current_acc, double dist_traveled,
-	long leadid, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
+	long lead_id, double lead_tf, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
 	double sig_tm_nxt_green, double sig_tm_nxt_red, double sig_cyc_time, double dist_to_sig, double current_time);
 
 int main()
@@ -34,10 +34,11 @@ int main()
 	double current_spd = 12;
 	double current_acc = 0;
 	// Lead vehicle information
-	long leadId = -1; //-1 if there is no car in the front, otherwise pass the vehicle ID
+	long lead_id = 2; //-1 if there is no car in the front, otherwise pass the vehicle ID
 	double lead_spd_diff = 0; // spd_lead - spd_ego
-	double lead_dist = 200; // distance of the lead vehicle from the ego car
+	double lead_dist = 40; // distance of the lead vehicle from the ego car
 	double lead_acc = 0; // acceleration of the lead vehicle
+	double lead_tf = 29.5; // final arriavla time of the lead vehicle at the intersection (should be derived from VISSIM)
 	// Traggic light info
 	string sig_state = "GREEN"; // options: "GREEN", "RED", "YELLOW"
 	double sig_tm_nxt_green = 10.5; // Remaining time to the next green light
@@ -52,11 +53,11 @@ int main()
 	// output[2]: mode: 3 if in eco_and, 0 otherwise
 	vector<double> output;
 
-	output = cal_ecoand(current_veh_id, current_spd, current_acc, dist_traveled, leadId,
+	output = cal_ecoand(current_veh_id, current_spd, current_acc, dist_traveled, lead_id, lead_tf,
 		lead_dist, lead_spd_diff, lead_acc, sig_id, sig_state, sig_tm_nxt_green, sig_tm_nxt_red,
 		sig_cyc_time, dist_to_sig, current_time);
 
-	std:cout << "Acceleration: " << output[0] << "\n";
+std:cout << "Acceleration: " << output[0] << "\n";
 	std::cout << "Tf: " << output[1] << "\n";
 	std::cout << "Control Mode " << output[2] << "\n";
 
@@ -69,7 +70,7 @@ int main()
 
 
 vector<double> cal_ecoand(long current_veh_id, double current_spd, double current_acc, double dist_traveled,
-	long leadId, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
+	long lead_id, double lead_tf, double lead_dist, double lead_spd_diff, double lead_acc, long sig_id, string sig_state,
 	double sig_tm_nxt_green, double sig_tm_nxt_red, double sig_cyc_time, double dist_to_sig, double current_time)
 {
 	ecoand c;
@@ -97,10 +98,16 @@ vector<double> cal_ecoand(long current_veh_id, double current_spd, double curren
 
 
 
-	if (leadId == -1)
+	if (lead_id == -1)
+	{
 		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc);
+	}
 	else
-		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc, leadId, lead_acc, lead_spd_diff, lead_dist);
+	{
+		c.init(current_veh_id, current_time, dist_traveled, current_spd, current_acc, lead_id, lead_acc, lead_spd_diff, lead_dist);
+		sigs_vehs[sig_id].push_back(lead_id);
+		sigs_vehs_times[sig_id].push_back(lead_tf);
+	}
 	c.mode = 3;
 	c.set_limits(max_spd, min_spd, max_acc, min_acc);
 
@@ -238,7 +245,7 @@ vector<double> cal_ecoand(long current_veh_id, double current_spd, double curren
 				acc = a3 * (current_time - t2) + b3;
 		}
 		//safety check
-		if (leadId == -1 || (leadId != -1 && lead_dist - lead_veh_length >= current_spd * safe_headway + safe_dist))
+		if (lead_id == -1 || (lead_id != -1 && lead_dist - lead_veh_length >= current_spd * safe_headway + safe_dist))
 			desired_acceleration = acc;
 		else
 		{
@@ -246,10 +253,6 @@ vector<double> cal_ecoand(long current_veh_id, double current_spd, double curren
 			c.mode = 0;
 		}
 	}
-	//std::cout << "desired acceleration: " << desired_acceleration << "\n";
-	//std::cout << "acc:" << acc << "\n";
-	//std::cout << "control mode: " << c.ctrl_modes[0] << "\n";
-	//std::cout << "Mode: " << c.mode << "\n";
 
 	results.push_back(acc);
 	results.push_back(tf);
