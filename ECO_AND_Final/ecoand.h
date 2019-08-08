@@ -59,8 +59,8 @@ public:
 	map<long, double> sig_in_ctrl_times; //to store entry times at intersections
 
 public:
-	void init(long id, double tm, double pos, double spd, double acc);
-	void init(long id, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist);
+	void init(long id, double tm, double pos, double spd);
+	void init(long id, double tm, double pos, double spd, long f_id, double f_spd_diff, double f_dist);
 	void update_status(long lk, long lane, double tm, double spd, double acc, double pos);
 	void update_status(long lk, long lane, double tm, double spd, double acc, double pos, long f_id, double f_acc, double f_spd_diff, double f_dist);
 
