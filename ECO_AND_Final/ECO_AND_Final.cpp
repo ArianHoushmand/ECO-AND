@@ -62,14 +62,13 @@ int main()
 
 	double sig_pos = dist_traveled + dist_to_sig;
 	double time_step = 0.1;
-	bool first_line = 1;
+	// Creating the header of CSV file
 	// file pointer
 	fstream fout;
 	// opens an existing csv file or creates a new file.
 	fout.open("reportcard.csv", ios::out | ios::app);
 	fout << "Time ," << "Position ," << "Speed ," << "Acceleration ," << "Terminal Time ," \
-		<< "Mode ," << "Distance to signal " << "\n";
-	cout << "here!";
+				<< "Mode ," << "Distance to signal " << "\n";
 	while (dist_traveled <= sig_pos) {
 		vector<double> output;
 		output = cal_ecoand(current_veh_id, current_spd, dist_traveled, lead_id, lead_tf,
@@ -84,13 +83,6 @@ int main()
 		current_time += time_step;
 		cout << "Time: " << current_time << " Acceleration: " << output[0] << \
 		" Tf: " << output[1] << " Control Mode " << output[2] << "\n";
-		// file pointer
-		fstream fout;
-		// opens an existing csv file or creates a new file.
-		fout.open("reportcard.csv", ios::out | ios::app);
-			//fout << "Time ," << "Position ," << "Speed ," << "Acceleration ," << "Terminal Time ," \
-			//	<< "Mode ," << "Distance to signal " << "\n";
-			//cout << "here!";
 
 		fout << current_time << ", " << dist_traveled << ", " << current_spd << ", " << output[0] <<\
 			", " << output[1] << ", "<< output[2] << ", "<< dist_to_sig <<"\n";
