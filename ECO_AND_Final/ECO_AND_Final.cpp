@@ -33,10 +33,10 @@ int main()
 	long current_veh_id = 1;
 	double current_spd = 12;
 	// Lead vehicle information
-	long lead_id = 2; //-1 if there is no car in the front, otherwise pass the vehicle ID
+	long lead_id = -1; //-1 if there is no car in the front, otherwise pass the vehicle ID
 	double lead_spd_diff = 0; // spd_lead - spd_ego
-	double lead_dist = 40; // distance of the lead vehicle from the ego car
-	double lead_tf = 28; // final arriavla time of the lead vehicle at the intersection (should be derived from VISSIM)
+	double lead_dist = 300; // distance of the lead vehicle from the ego car
+	double lead_tf = 31; // final arriavla time of the lead vehicle at the intersection (should be derived from VISSIM)
 	// Traggic light info
 	string sig_state = "GREEN"; // options: "GREEN", "RED", "YELLOW"
 	double sig_tm_nxt_green = 10.5; // Remaining time to the next green light
@@ -55,7 +55,7 @@ int main()
 		lead_dist, lead_spd_diff, sig_id, sig_state, sig_tm_nxt_green, sig_tm_nxt_red,
 		sig_cyc_time, dist_to_sig, current_time);
 
-std:cout << "Acceleration: " << output[0] << "\n";
+	std:cout << "Acceleration: " << output[0] << "\n";
 	std::cout << "Tf: " << output[1] << "\n";
 	std::cout << "Control Mode " << output[2] << "\n";
 
