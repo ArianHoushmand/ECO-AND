@@ -18,6 +18,7 @@
 #include <boost\bind.hpp>
 #include <cmath>
 #include <math.h>
+#include <fstream>
 
 
 vector<double> cal_ecoand(long current_veh_id, double current_spd, double dist_traveled,
@@ -41,9 +42,9 @@ int main()
 	string sig_state = "GREEN"; // options: "GREEN", "RED", "YELLOW"
 	double sig_tm_nxt_green = 10.5; // Remaining time to the next green light
 	double sig_tm_nxt_red = 0.5;// Remaining time to the next red light
-	double sig_cyc_time = 10; // total cycle time of the light: total red time + total greem time
+	double sig_cyc_time = 20; // total cycle time of the light: total red time + total greem time
 	long sig_id = 1; // Signal ID (we can leave it as it since we only have one traffic light)
-	double dist_to_sig = 140; // distance of the ego car to the traffic light
+	double dist_to_sig = 95; // distance of the ego car to the traffic light
 
 	// Output vector:
 	// output[0]: desired acceleration
@@ -59,9 +60,48 @@ int main()
 	std::cout << "Tf: " << output[1] << "\n";
 	std::cout << "Control Mode " << output[2] << "\n";
 
+	double sig_pos = dist_traveled + dist_to_sig;
+	double time_step = 0.1;
+	bool first_line = 1;
+	// file pointer
+	fstream fout;
+	// opens an existing csv file or creates a new file.
+	fout.open("reportcard.csv", ios::out | ios::app);
+	fout << "Time ," << "Position ," << "Speed ," << "Acceleration ," << "Terminal Time ," \
+		<< "Mode ," << "Distance to signal " << "\n";
+	cout << "here!";
+	while (dist_traveled <= sig_pos) {
+		vector<double> output;
+		output = cal_ecoand(current_veh_id, current_spd, dist_traveled, lead_id, lead_tf,
+			lead_dist, lead_spd_diff, sig_id, sig_state, sig_tm_nxt_green, sig_tm_nxt_red,
+			sig_cyc_time, dist_to_sig, current_time);
+		double delta_x = 0.5 * output[0] * pow(time_step, 2) + current_spd * time_step;
+		dist_traveled += delta_x;
+		current_spd += output[0] * time_step;
+		dist_to_sig -= delta_x;
+		sig_tm_nxt_green -= time_step;
+		sig_tm_nxt_red -= time_step;
+		current_time += time_step;
+		cout << "Time: " << current_time << " Acceleration: " << output[0] << \
+		" Tf: " << output[1] << " Control Mode " << output[2] << "\n";
+		// file pointer
+		fstream fout;
+		// opens an existing csv file or creates a new file.
+		fout.open("reportcard.csv", ios::out | ios::app);
+			//fout << "Time ," << "Position ," << "Speed ," << "Acceleration ," << "Terminal Time ," \
+			//	<< "Mode ," << "Distance to signal " << "\n";
+			//cout << "here!";
+
+		fout << current_time << ", " << dist_traveled << ", " << current_spd << ", " << output[0] <<\
+			", " << output[1] << ", "<< output[2] << ", "<< dist_to_sig <<"\n";
+	}
+
+
 
 
 	//////////////////////////////////////////////
+
+
 
 
 }
@@ -75,12 +115,12 @@ vector<double> cal_ecoand(long current_veh_id, double current_spd, double dist_t
 	vector<double> results;
 	double tf = -1;
 
-	double max_spd = 16; // 36mph for urban intersection
+	double max_spd = 11.2; // 40kph for urban intersection
 	double min_spd = 2; // 5mph (queue start speed in vissim)
 	double min_acc = -2.0; // (desired deceleration for normal vehicles)
 	double max_acc = 2.0; // (desired acceleration for normal vehicles)
 
-	double ctrl_len = 150; // min distance to traffic light for activating ecoAND
+	double ctrl_len = 100; // min distance to traffic light for activating ecoAND
 
 	double des_headway = 1.2;
 	double safe_dist = 1.5;
