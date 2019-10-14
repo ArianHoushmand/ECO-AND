@@ -10,16 +10,27 @@ ecoand::~ecoand()
 {
 }
 
+#ifndef NOMINMAX
 
-void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd, double acc)
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
+
+#endif  /* NOMINMAX */
+
+void ecoand::init(long id, double tm, double pos, double spd)
 {
 	veh_id = id;
-	current_lat = lat;
-	current_lon = lon;
+	//current_lat = lat;
+	//current_lon = lon;
 	cur_time = tm;
 	cur_pos = pos;
 	cur_spd = spd;
-	cur_acc = acc;
+	//cur_acc = acc;
 	in_ecoand = 0;
 	lead_id = -1;
 
@@ -33,22 +44,22 @@ void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd
 	mode = 0;
 }
 
-void ecoand::init(long id, long lat, long lon, double tm, double pos, double spd, double acc, long f_id, double f_acc, double f_spd_diff, double f_dist)
+void ecoand::init(long id, double tm, double pos, double spd, long f_id, double f_spd_diff, double f_dist)
 {
 	veh_id = id;
-	current_lat = lat;
-	current_lon = lon;
+	//current_lat = lat;
+	//current_lon = lon;
 	cur_time = tm;
 	cur_pos = pos;
 	cur_spd = spd;
-	cur_acc = acc;
+	//cur_acc = acc;
 
 
 	rho_u = 0.0100;
 	rho_t = 0.2500;
 
 	lead_id = f_id;
-	lead_acc = f_acc;
+	//lead_acc = f_acc;
 	lead_dist = f_dist;
 	lead_spd = spd - f_spd_diff;
 
@@ -135,8 +146,8 @@ vector<double> ecoand::fittoca(double spd, double dist_to_sig, double final_time
 	//case 2
 	int status = GSL_CONTINUE;
 	int iter = 0, max_iter = 100;
-	const gsl_root_fsolver_type *T;
-	gsl_root_fsolver *s;
+	const gsl_root_fsolver_type* T;
+	gsl_root_fsolver* s;
 	double r = 0;
 	double x_lo = 0.0, x_hi = final_time;
 	gsl_function F;
@@ -168,7 +179,7 @@ vector<double> ecoand::fittoca(double spd, double dist_to_sig, double final_time
 
 		if (t1 > 0 && t1 < t2 && t2 < final_time)
 		{
-			obj = t1 * pow(amax, 2) + pow(amax, 4) / 12.0*pow(t2 - t1, 3) / pow(spd - vmax + t2 * amax, 2);
+			obj = t1 * pow(amax, 2) + pow(amax, 4) / 12.0 * pow(t2 - t1, 3) / pow(spd - vmax + t2 * amax, 2);
 			if (obj_values.count(obj) == 0)
 			{
 				obj_values[obj].push_back(obj);
@@ -212,8 +223,8 @@ vector<double> ecoand::fittoca(double spd, double dist_to_sig, double final_time
 	x_lo = 0.0;
 	x_hi = final_time;
 	gsl_function F2;
-	const gsl_root_fsolver_type *T2;
-	gsl_root_fsolver *s2;
+	const gsl_root_fsolver_type* T2;
+	gsl_root_fsolver* s2;
 
 	F2.function = &fittoca_case3;
 	F2.params = &fa3params;
@@ -349,13 +360,13 @@ vector<double> ecoand::fittocd(double spd, double dist_to_sig, double final_time
 	//case 1
 	int status = GSL_CONTINUE;
 	int iter = 0, max_iter = 100;
-	const gsl_root_fsolver_type *T;
-	gsl_root_fsolver *s;
+	const gsl_root_fsolver_type* T;
+	gsl_root_fsolver* s;
 	double r = 0;
 	double x_lo = 0.0, x_hi = final_time;
 	gsl_function F;
 
-	struct fittocd_case1_params fd1params = { spd, final_time, vmin, amin};
+	struct fittocd_case1_params fd1params = { spd, final_time, vmin, amin };
 	F.function = &fittocd_case1;
 	F.params = &fd1params;
 	T = gsl_root_fsolver_brent;
@@ -383,7 +394,7 @@ vector<double> ecoand::fittocd(double spd, double dist_to_sig, double final_time
 
 		if (t1 >= 0 && t1 < t2 && t2 <= final_time)
 		{
-			obj = t1 * pow(amin, 2) + pow(amin, 4) / 12.0*pow(t2 - t1, 3) / pow(spd - vmin + t2 * amin, 2);
+			obj = t1 * pow(amin, 2) + pow(amin, 4) / 12.0 * pow(t2 - t1, 3) / pow(spd - vmin + t2 * amin, 2);
 			if (obj_values.count(obj) == 0)
 			{
 				obj_values[obj].push_back(obj);
@@ -425,8 +436,8 @@ vector<double> ecoand::fittocd(double spd, double dist_to_sig, double final_time
 	status = GSL_CONTINUE;
 	iter = 0;
 	struct fittocd_case2_params fd2params = { spd, final_time, amin };
-	const gsl_root_fsolver_type *T2;
-	gsl_root_fsolver *s2;
+	const gsl_root_fsolver_type* T2;
+	gsl_root_fsolver* s2;
 	x_lo = 0.0;
 	x_hi = final_time;
 	gsl_function F2;
@@ -494,7 +505,7 @@ vector<double> ecoand::fittocd(double spd, double dist_to_sig, double final_time
 
 	//case 3
 	t1 = 0;
-	t2 = (3.0 * dist_to_sig - 3.0 * final_time*vmin) / (spd - vmin);
+	t2 = (3.0 * dist_to_sig - 3.0 * final_time * vmin) / (spd - vmin);
 	acc = 2.0 * (vmin - spd) / t2;
 	final_spd = vmin;
 	if (t2 > 0 && t2 < final_time && acc > amin)
@@ -525,7 +536,7 @@ vector<double> ecoand::fittocd(double spd, double dist_to_sig, double final_time
 	//case 4
 	t1 = 0;
 	t2 = final_time;
-	final_spd = (3.0 / 2.0)*(dist_to_sig - spd * final_time) / final_time + spd;
+	final_spd = (3.0 / 2.0) * (dist_to_sig - spd * final_time) / final_time + spd;
 	acc = 2.0 * (final_spd - spd) / final_time;
 
 	if (final_spd <= vmax && final_spd >= vmin)
@@ -622,58 +633,7 @@ vector<double> ecoand::rorg(double cur_time, double cur_pos, double spd, long ne
 
 	return results;
 }
-/*
-void ecoand::cal_acc(double cur_time, double time_step, double cur_pos, double spd, long next_sig)
-{
-	ctrls.clear();
 
-	double final_time = 0, acc = 0;
-	vector<double> rorg_results = rorg(cur_time, cur_pos, spd, next_sig);
-	vector<double> fittoca_results, fittocd_results;
-
-	double index_to_go = rorg_results[0];
-	double tt_acc = rorg_results[1];
-	double tt_dec = rorg_results[2];
-
-	if (index_to_go == 1)
-	{
-		final_time = sig_ini_times[next_sig];
-		acc = 0;
-	}
-	else
-	{
-		if (tt_acc >= 0)
-		{
-			fittoca_results = fittoca(spd, cur_pos, next_sig, tt_acc);
-		}
-		else
-		{
-			fittoca_results.push_back(10000);
-		}
-		fittocd_results = fittocd(spd, cur_pos, next_sig, tt_dec);
-
-		double ja = fittoca_results[0];
-		double jd = fittocd_results[0];
-
-		if (ja <= jd)
-		{
-			final_time = tt_acc;
-			acc = fittoca_results[3];
-		}
-		else
-		{
-			final_time = tt_dec;
-			acc = fittocd_results[3];
-		}
-	}
-
-	double speed = acc * time_step + spd;
-
-	ctrls.push_back(final_time);
-	ctrls.push_back(acc);
-	ctrls.push_back(speed);
-}
-*/
 void ecoand::set_ctrls(double final_time, double time_step, double acc, double spd)
 {
 	ctrls.clear();
@@ -761,7 +721,7 @@ void ecoand::set_ctrls(string mode, double cur_time, double t1, double t2, doubl
 			{
 				t_1 = t2 + cur_time;
 				t_2 = tf;
-				a1 = - acc / t2;
+				a1 = -acc / t2;
 				b1 = acc;
 				a2 = 0;
 				b2 = 0;
@@ -779,7 +739,7 @@ void ecoand::set_ctrls(string mode, double cur_time, double t1, double t2, doubl
 			if (obj != 10000)
 			{
 				t_1 = tf;
-				a1 = -acc / (tf- cur_time);
+				a1 = -acc / (tf - cur_time);
 				b1 = acc;
 
 				ctrls.push_back(t_1);
@@ -840,7 +800,7 @@ void ecoand::set_ctrls(string mode, double cur_time, double t1, double t2, doubl
 			{
 				t_1 = t2 + cur_time;
 				t_2 = tf;
-				a1 = - acc / t2;
+				a1 = -acc / t2;
 				b1 = acc;
 				a2 = 0;
 				b2 = 0;
@@ -919,33 +879,33 @@ vector<double> ecoand::fttoc(double spd, double rho_t, double rho_u, double dist
 
 	if (v0 / vM < 1 - pow(aM, 2) * rho_u / rho_t)
 	{
-		if (l >= (pow(vM, 2) - pow(v0, 2)) / (2 * aM) + aM * pow(vM, 2)* rho_u / rho_t - pow(aM, 3)* pow(vM, 2) * pow(rho_u, 2) / (6 * pow(rho_t, 2)))
+		if (l >= (pow(vM, 2) - pow(v0, 2)) / (2 * aM) + aM * pow(vM, 2) * rho_u / rho_t - pow(aM, 3) * pow(vM, 2) * pow(rho_u, 2) / (6 * pow(rho_t, 2)))
 		{
 			cas = 1;
-			t1 = ((1 - pow(aM, 2) * rho_u / rho_t)*vM - v0) / aM;
-			t2 = 2 * aM*vM*rho_u / rho_t;
-			ud = rho_t / (2 * rho_u*vM);
+			t1 = ((1 - pow(aM, 2) * rho_u / rho_t) * vM - v0) / aM;
+			t2 = 2 * aM * vM * rho_u / rho_t;
+			ud = rho_t / (2 * rho_u * vM);
 			tf = t1 + t2 + (l - (pow(vM, 2) - pow(v0, 2)) / (2 * aM) - aM * pow(vM, 2) * rho_u / rho_t + pow(aM, 3) * pow(vM, 2) * pow(rho_u, 2) / (6 * pow(rho_t, 2))) / vM;
 		}
 		else
 		{
 			cas = 2;
-			v = sqrt((2 * aM*l + pow(v0, 2)) / (1 + 4 * pow(aM, 2)* rho_u / (rho_t*(1 - rho_u * pow(aM, 2) / rho_t)) + 8 * pow(rho_u, 2) * pow(aM, 4) / (3 * pow(rho_t, 2) * pow(1 - rho_u * pow(aM, 2) / rho_t, 2))));
+			v = sqrt((2 * aM * l + pow(v0, 2)) / (1 + 4 * pow(aM, 2) * rho_u / (rho_t * (1 - rho_u * pow(aM, 2) / rho_t)) + 8 * pow(rho_u, 2) * pow(aM, 4) / (3 * pow(rho_t, 2) * pow(1 - rho_u * pow(aM, 2) / rho_t, 2))));
 			t1 = (v - v0) / aM;
-			t2 = 2 * aM*(rho_u / rho_t)*v / (1 - rho_u * pow(aM, 2) / rho_t);
-			ud = rho_t * (1 - rho_u * pow(aM, 2) / rho_t) / (2 * rho_u*v);
+			t2 = 2 * aM * (rho_u / rho_t) * v / (1 - rho_u * pow(aM, 2) / rho_t);
+			ud = rho_t * (1 - rho_u * pow(aM, 2) / rho_t) / (2 * rho_u * v);
 			tf = t1 + t2;
 		}
 	}
 	else
 	{
-		if (l >= 2 * v0*sqrt((vM - v0)*vM*rho_u / rho_t) + 4 * (vM - v0)*sqrt((vM - v0)*vM*rho_u / rho_t) / 3)
+		if (l >= 2 * v0 * sqrt((vM - v0) * vM * rho_u / rho_t) + 4 * (vM - v0) * sqrt((vM - v0) * vM * rho_u / rho_t) / 3)
 		{
 			cas = 3;
 			t1 = 0;
-			t2 = 2 * sqrt((vM - v0)*vM*rho_u / rho_t);
-			ud = rho_t / (2 * rho_u*vM);
-			tf = t2 + (l - 2 * v0*sqrt((vM - v0)*vM*rho_u / rho_t) - 4 * (vM - v0)*sqrt((vM - v0)*vM*rho_u / rho_t) / 3) / vM;
+			t2 = 2 * sqrt((vM - v0) * vM * rho_u / rho_t);
+			ud = rho_t / (2 * rho_u * vM);
+			tf = t2 + (l - 2 * v0 * sqrt((vM - v0) * vM * rho_u / rho_t) - 4 * (vM - v0) * sqrt((vM - v0) * vM * rho_u / rho_t) / 3) / vM;
 		}
 		else
 		{
@@ -953,13 +913,13 @@ vector<double> ecoand::fttoc(double spd, double rho_t, double rho_u, double dist
 
 			int status = GSL_CONTINUE;
 			int iter = 0, max_iter = 100;
-			const gsl_root_fsolver_type *T;
-			gsl_root_fsolver *s;
+			const gsl_root_fsolver_type* T;
+			gsl_root_fsolver* s;
 			double r = 0;
 			double x_lo = 0.0, x_hi = 1000;
 			gsl_function F;
 
-			struct fttoc_params ftparams = { spd, rho_t, rho_u};
+			struct fttoc_params ftparams = { spd, rho_t, rho_u };
 			F.function = &fttoc_solve;
 			F.params = &ftparams;
 			T = gsl_root_fsolver_brent;
@@ -991,7 +951,7 @@ vector<double> ecoand::fttoc(double spd, double rho_t, double rho_u, double dist
 			{
 				t1 = 0;
 				t2 = tf;
-				ud = rho_t / (rho_u*(v0 + sqrt(pow(v0, 2) + rho_t * pow(tf, 2) / rho_u)));
+				ud = rho_t / (rho_u * (v0 + sqrt(pow(v0, 2) + rho_t * pow(tf, 2) / rho_u)));
 			}
 		}
 	}
@@ -1039,70 +999,285 @@ void ecoand::get_sig_links(string sig_link_str, string sig_group_str, map<long, 
 	}
 }
 
-//void ecoand::get_sig_states(string sig_state_str, string sig_time_green_str, string sig_time_red_str)
-//{
-//	vector<string> state_temp, green_temp, red_temp;
-//	boost::split(state_temp, sig_state_str, boost::is_any_of(","), boost::token_compress_on);
-//	boost::split(green_temp, sig_time_green_str, boost::is_any_of(","), boost::token_compress_on);
-//	boost::split(red_temp, sig_time_red_str, boost::is_any_of(","), boost::token_compress_on);
-//	int c = 0;
-//
-//	for (size_t i = 0; i < state_temp.size(); i++)
-//	{
-//		if (state_temp[i] != "")
-//		{
-//			long lk = sigs[c];
-//			sig_states[lk] = state_temp[i];
-//			sig_tm_next_green[lk] = stod(green_temp[i]);
-//			sig_tm_next_red[lk] = stod(red_temp[i]);
-//			c += 1;
-//		}
-//	}
-//}
+
 
 void ecoand::get_sig_states(string sig_state_str, double tm_nxt_green, double tm_nxt_red, double cyc_time, long sig_ID)
 {
 
-			sig_states[sig_ID] = sig_state_str;
-			sig_tm_next_green[sig_ID] = tm_nxt_green;
-			sig_tm_next_red[sig_ID] = tm_nxt_red;
-			sig_cyc_times[sig_ID] = cyc_time;
+	sig_states[sig_ID] = sig_state_str;
+	sig_tm_next_green[sig_ID] = tm_nxt_green;
+	sig_tm_next_red[sig_ID] = tm_nxt_red;
+	sig_cyc_times[sig_ID] = cyc_time;
 }
 
-//void ecoand::get_sig_pos(string link_str, map<long, double> link_lengths, map<long, double> sig_ctrl_lks)
-//{
-//	vector<string> links_temp;
-//	boost::split(links_temp, link_str, boost::is_any_of(","), boost::token_compress_on);
-//
-//	double length = 0;
-//
-//	for (size_t i = 0; i < links_temp.size(); i++)
-//	{
-//		if (links_temp[i] != "")
-//		{
-//			long lk = stoi(links_temp[i]);
-//
-//			if (find(rt_links.begin(), rt_links.end(), lk) == rt_links.end())
-//				rt_links.push_back(lk);
-//
-//			if (sig_ctrl_lks.count(lk) != 0)
-//			{
-//				length = length + link_lengths[lk];
-//				sig_lengths[lk] = length;
-//			}
-//			else
-//			{
-//				length = length + link_lengths[lk];
-//			}
-//		}
-//	}
-//}
 
 
 void ecoand::get_sig_pos(long cur_lat, long cur_lon, long nxt_sig_lat, long nxt_sig_lon)
 {
-// call SPaT message for current position and heading and get the location of traffic light
+	// call SPaT message for current position and heading and get the location of traffic light
 	dist_to_sig = haversine(cur_lat, cur_lon, nxt_sig_lat, nxt_sig_lon);
 
 }
+
+
+
+vector<double> ecoand::cal_final_time_ecoand(map<long, vector<long>> sigs_vehs,
+	map<long, vector<double>> sigs_vehs_times, double des_headway, long sig_ID)
+{
+	double vf = -1, acc_dec = 0;
+	vector<double> results;
+	long last_veh_id = 0;
+	double last_veh_time = 0;
+	if (sigs_vehs[sig_ID].size() > 0)
+	{
+		last_veh_id = sigs_vehs[sig_ID].back();
+		last_veh_time = sigs_vehs_times[sig_ID].back();
+	}
+
+	if (sigs_vehs[sig_ID].size() == 0 || (last_veh_time > 0 && last_veh_time <= cur_time)) //first vehicle approaching the intersection from one direction (link of the signal head -- unique for each directions)
+	{
+		if (sig_states[sig_ID] == "GREEN") //if current state is green
+		{
+			double left_green_time = sig_tm_next_red[sig_ID]; //time until red
+			double final_time_green = left_green_time + cur_time; //maximum final time
+
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time;
+
+			if (sig_ini_times[sig_ID] <= final_time_green) //if initial time is smaller than green end time
+			{
+				vf = sig_ini_times[sig_ID];
+			}
+			else if (min_time <= final_time_green) // if with maximum speed, green end time is smaller than minimum time
+			{
+				vf = final_time_green;
+				acc_dec = 1; //acceleration
+			}
+			else
+			{
+				double final_time_new = sig_tm_next_green[sig_ID] + cur_time; //time until next green
+				vf = final_time_new;
+				acc_dec = -1;
+			}
+		}
+		else //amber or red
+		{
+			double left_red_time = sig_tm_next_green[sig_ID]; //time until green
+			double final_time_green_start = left_red_time + cur_time; // earliest available green, minimum final time
+			double final_time_green_end = sig_tm_next_red[sig_ID] + cur_time; //time until next red, maximum final time
+
+			double max_time = (dist_to_sig) / vmin + cur_time; //deceleration time
+			double min_time = (dist_to_sig) / vmax + cur_time; //acceleration time
+
+			if (sig_ini_times[sig_ID] >= final_time_green_start && sig_ini_times[sig_ID] <= final_time_green_end) //if initial time is smaller than green end time
+			{
+				vf = sig_ini_times[sig_ID];
+			}
+			else if (sig_ini_times[sig_ID] < final_time_green_start) // if initial time is earlier than red end time -- deceleration
+			{
+				if (max_time >= final_time_green_start)
+				{
+					vf = final_time_green_start;
+					acc_dec = -1; //deceleration
+				}
+				else
+				{
+					vf = -1; //need to stop for red
+				}
+			}
+			else if (sig_ini_times[sig_ID] > final_time_green_end)
+			{
+				double final_time_new = final_time_green_start + sig_cyc_times[sig_ID]; //next green time
+
+				if (min_time <= final_time_green_end) // if with maximum speed, green end time is smaller than minimum time
+				{
+					vf = final_time_green_end;
+					acc_dec = 1; //acceleration
+				}
+				else if (max_time >= final_time_new)
+				{
+					vf = final_time_new;
+					acc_dec = -1;
+				}
+				else
+				{
+					vf = -1;//need to stop for red
+				}
+			}
+		}
+	}
+	else if (last_veh_id != veh_id)
+	{
+		if (sig_states[sig_ID] == "GREEN") //if current state is green, then check last vehicle entry time
+		{
+			double left_green_time = sig_tm_next_red[sig_ID]; //time until red
+			double final_time_green = left_green_time + cur_time;
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time; //useful
+
+			if (last_veh_time + des_headway <= final_time_green)
+			{
+				if (sig_ini_times[sig_ID] <= final_time_green)
+				{
+					vf = max(sig_ini_times[sig_ID], last_veh_time + des_headway);
+					acc_dec = sig_ini_times[sig_ID] < last_veh_time + des_headway ? -1 : 0;
+				}
+				else
+				{
+					if (min_time <= final_time_green)
+					{
+						vf = max(last_veh_time + des_headway, min_time);
+						acc_dec = 1;
+					}
+					else
+					{
+						double final_time_new = sig_tm_next_green[sig_ID] + cur_time; //time until next green
+						if (max_time > final_time_new)
+						{
+							vf = final_time_new;
+							acc_dec = -1; //deceleration
+						}
+						else
+							vf = -1;
+					}
+				}
+			}
+			else //last_veh_time + des_headway > final_time_green
+			{
+				double final_time_new = sig_tm_next_green[sig_ID] + cur_time; //time until next green
+				double final_time_new_exit = sig_tm_next_green[sig_ID] + sig_cyc_times[sig_ID] + cur_time;//time when next green ends
+
+				if (last_veh_time <= final_time_green)
+				{
+					if (sig_ini_times[sig_ID] <= final_time_new)
+					{
+						if (max_time >= final_time_new) // if with maximum speed, green end time is smaller than minimum time
+						{
+							vf = final_time_new;
+							acc_dec = -1; //deceleration
+						}
+						else
+							vf = -1;
+					}
+					else if (sig_ini_times[sig_ID] > final_time_new && sig_ini_times[sig_ID] <= final_time_new_exit)
+					{
+						vf = sig_ini_times[sig_ID]; //constant speed
+					}
+					else if (sig_ini_times[sig_ID] >= final_time_new_exit)
+					{
+						if (min_time <= final_time_new_exit)
+						{
+							vf = final_time_new_exit;
+							acc_dec = 1;
+						}
+						else
+						{
+							vf = -1;
+						}
+					}
+				}
+				else //last_veh_time > final_time_green -- then last_veh_time should be at least final_time_new
+				{
+					if (last_veh_time + des_headway <= final_time_new_exit)
+					{
+						if (sig_ini_times[sig_ID] > final_time_new && sig_ini_times[sig_ID] <= final_time_new_exit)
+						{
+							vf = max(sig_ini_times[sig_ID], last_veh_time + des_headway);
+							acc_dec = sig_ini_times[sig_ID] < last_veh_time + des_headway ? -1 : 0;
+						}
+						else if (sig_ini_times[sig_ID] <= final_time_new)
+						{
+							if (max_time > final_time_new && max_time <= final_time_new_exit) // if with maximum speed, green end time is smaller than minimum time
+							{
+								vf = min(max_time, last_veh_time + des_headway);
+								acc_dec = -1; //deceleration
+							}
+							else if (max_time > final_time_new_exit)
+							{
+								vf = last_veh_time + des_headway;
+								acc_dec = -1; //deceleration
+							}
+							else
+								vf = -1;
+						}
+						else // sig_ini_times[sig] > final_time_new_exit
+						{
+							if (min_time <= final_time_new_exit)
+							{
+								vf = max(min_time, last_veh_time + des_headway);
+								acc_dec = 1;
+							}
+							else//(min_time > final_time_new_exit)
+							{
+								vf = -1;
+							}
+						}
+					}
+					else
+					{
+						vf = -1;
+					}
+				}
+			}
+		}
+		else // red or amber
+		{
+			double left_red_time = sig_tm_next_green[sig_ID]; //time until green
+			double final_time_enter = left_red_time + cur_time; // earliest available green
+			double final_time_exit = sig_tm_next_red[sig_ID] + cur_time; //time until next red
+			double max_time = (dist_to_sig) / vmin + cur_time;
+			double min_time = (dist_to_sig) / vmax + cur_time; //useful
+
+			if (last_veh_time + des_headway > final_time_enter && last_veh_time + des_headway <= final_time_exit) // if potential final time for this vehicle is green
+			{
+				if (sig_ini_times[sig_ID] == last_veh_time + des_headway)
+					acc_dec = 0;
+				else if (sig_ini_times[sig_ID] > final_time_exit)
+				{
+					if (min_time < final_time_exit)
+					{
+						vf = max(min_time, last_veh_time + des_headway);
+						acc_dec = 1;
+					}
+					else
+					{
+						vf = -1;
+					}
+				}
+				else if (sig_ini_times[sig_ID] <= final_time_enter)
+				{
+					if (max_time > final_time_exit)
+					{
+						vf = last_veh_time + des_headway;
+						acc_dec = -1;
+					}
+					else if (max_time > final_time_enter)
+					{
+						vf = min(max_time, last_veh_time + des_headway);
+						acc_dec = -1;
+					}
+					else
+					{
+						vf = -1;
+					}
+				}
+				else
+				{
+					vf = max(sig_ini_times[sig_ID], last_veh_time + des_headway);
+					acc_dec = sig_ini_times[sig_ID] < vf ? -1 : 1;
+				}
+			}
+			else if (last_veh_time + des_headway > final_time_exit) // if potential final time for this vehicle is next red
+			{
+				vf = -1;
+			}
+		}
+	}
+	results.push_back(vf);
+	results.push_back(acc_dec);
+
+	return results;
+}
+
+
 
