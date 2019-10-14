@@ -29,22 +29,22 @@ int main()
 {
 	//Inputes:
 	// Ego  vehicle info
-	double dist_traveled = 10; // distance travelled since the beginning
-	double current_time = 19.5;
-	long current_veh_id = 1;
-	double current_spd = 12;
+	double dist_traveled = 1480.98; // distance travelled since the beginning
+	double current_time = 78.1;
+	long current_veh_id = 77529090;
+	double current_spd = 11.11;
 	// Lead vehicle information
 	long lead_id = -1; //-1 if there is no car in the front, otherwise pass the vehicle ID
-	double lead_spd_diff = 0; // spd_lead - spd_ego
-	double lead_dist = 300; // distance of the lead vehicle from the ego car
-	double lead_tf = 31; // final arriavla time of the lead vehicle at the intersection (should be derived from VISSIM)
+	double lead_spd_diff = 0.011; // spd_lead - spd_ego
+	double lead_dist = 99.0154; // distance of the lead vehicle from the ego car
+	double lead_tf = 0; // final arriavla time of the lead vehicle at the intersection (should be derived from VISSIM)
 	// Traggic light info
-	string sig_state = "GREEN"; // options: "GREEN", "RED", "YELLOW"
-	double sig_tm_nxt_green = 10.5; // Remaining time to the next green light
-	double sig_tm_nxt_red = 0.5;// Remaining time to the next red light
-	double sig_cyc_time = 20; // total cycle time of the light: total red time + total greem time
-	long sig_id = 1; // Signal ID (we can leave it as it since we only have one traffic light)
-	double dist_to_sig = 95; // distance of the ego car to the traffic light
+	string sig_state = "RED"; // options: "GREEN", "RED", "YELLOW"
+	double sig_tm_nxt_green = 14.5; // Remaining time to the next green light
+	double sig_tm_nxt_red = 51.5;// Remaining time to the next red light
+	double sig_cyc_time = 76; // total cycle time of the light: total red time + total greem time
+	long sig_id = 2572; // Signal ID (we can leave it as it since we only have one traffic light)
+	double dist_to_sig = 99.0154; // distance of the ego car to the traffic light
 
 	// Output vector:
 	// output[0]: desired acceleration
