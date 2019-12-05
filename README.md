@@ -1,6 +1,6 @@
 # Economical Arrival and Departure (ECO-AND)
 
-This repository contains C++ codes for calculating the optimal speed and acceleration profiles for an autonomous vehicle approaching a traffic light. We assume the the vehicle has V2V communication capabilities, and through SPaT (Signal Phase and Timing) messages can receive the traffic light information (i.e. cycle time, remaining time to red, and green). The objective function in the optimal control problem is to minimize the overall fuel consumption and travel time for the car approaching the traffic light without ever fully stopping at the intersection. 
+This repository contains C++ codes for calculating the optimal speed and acceleration profiles for an autonomous vehicle approaching a traffic light. We assume the the vehicle has V2V communication capabilities, and through SPaT (Signal Phase and Timing) messages we can receive the traffic light information (i.e. cycle time, remaining time to red, and green). The objective function in the optimal control problem is to minimize the overall fuel consumption and travel time for the car approaching the traffic light without ever fully stopping at the intersection. 
 
  
 
